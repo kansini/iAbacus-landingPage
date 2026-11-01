@@ -16,14 +16,6 @@ iframe {
 }
 
 :root {
-  --bg: #181818;
-  --surface: #1f1f1f;
-  --raised: #272727;
-  --line: #373b36;
-  --text: #f1f2ed;
-  --secondary: #a0a69b;
-  --accent: #b1c5a2;
-  --accent-ink: #20271d;
   --font: "Noto Serif SC", "Noto Serif SC Complete", "Songti SC", serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --spacing-0: 0;
@@ -48,7 +40,6 @@ iframe {
   background: var(--bg);
   font-synthesis: weight;
   -webkit-font-smoothing: antialiased;
-  color-scheme: dark;
 }
 
 $type-styles: (
@@ -299,8 +290,8 @@ ol {
 }
 
 ::selection {
-  color: #181818;
-  background: #b1c5a2;
+  color: var(--accent-ink);
+  background: var(--accent);
 }
 
 .container {
@@ -349,8 +340,8 @@ ol {
     opacity 0.3s var(--ease);
 
   &:hover {
-    background: #c6d5bc;
-    border-color: #c6d5bc;
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
     transform: translateY(-2px);
   }
 
@@ -374,7 +365,7 @@ ol {
     transform 0.5s var(--ease);
 
   &:hover {
-    color: #e2ebdc;
+    color: var(--link-hover);
     transform: translateX(2px);
   }
 }
@@ -386,7 +377,7 @@ ol {
   padding: 12px 16px;
   border-radius: 8px;
   background: var(--accent);
-  color: #181818;
+  color: var(--accent-ink);
   z-index: 40;
 
   &:focus {
@@ -421,13 +412,13 @@ ol {
   display: flex;
   align-items: center;
   gap: var(--spacing-600);
-  background: #272727d9;
+  background: var(--nav-bg);
   backdrop-filter: blur(24px);
-  border: 1px solid #ffffff16;
+  border: 1px solid var(--nav-border);
   border-radius: 9999px;
   padding: var(--spacing-75) var(--spacing-75) var(--spacing-75)
     var(--spacing-200);
-  box-shadow: 0 8px 32px #0e100d30;
+  box-shadow: 0 8px 32px var(--nav-shadow);
 }
 
 .brand {
@@ -465,7 +456,7 @@ ol {
 
     &[aria-current],
     &:hover {
-      color: #f1f2ed;
+      color: var(--text);
     }
 
     &[aria-current]::before {
@@ -524,7 +515,7 @@ ol {
   position: fixed;
   inset: 0;
   z-index: var(--z-menu);
-  background: #181818f5;
+  background: var(--menu-bg);
   backdrop-filter: blur(40px);
   padding: 96px 32px 32px;
   min-height: 100dvh;
@@ -608,8 +599,8 @@ main {
 .hero h1 {
   max-width: 680px;
   padding-block: var(--spacing-300);
-  color: #fff;
-  background: linear-gradient(90deg, #ffffff, #9b9b9b);
+  color: var(--hero-start);
+  background: linear-gradient(90deg, var(--hero-start), var(--hero-end));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -642,7 +633,7 @@ main {
 .hero-product {
   margin-top: var(--spacing-600);
   background: var(--surface);
-  border: 1px solid #ffffff0d;
+  border: 1px solid var(--panel-border);
   border-radius: 24px;
   padding: var(--spacing-300);
 }
@@ -660,7 +651,7 @@ main {
   display: flex;
   align-items: center;
   gap: var(--spacing-75);
-  color: #c7d0c0;
+  color: var(--supportive);
 }
 
 .hero-instrument {
@@ -832,9 +823,9 @@ main {
   }
 
   &.is-selected {
-    border-color: #a9c3958c;
+    border-color: var(--selected-border);
     color: var(--text);
-    background: #272727;
+    background: var(--raised);
   }
 }
 
@@ -879,12 +870,12 @@ main {
     }
 
     &:hover {
-      background: #272727;
+      background: var(--raised);
       color: var(--text);
     }
 
     &[aria-selected="true"] {
-      background: #313131;
+      background: var(--active);
       color: var(--text);
 
       > svg:first-child {
@@ -956,7 +947,7 @@ main {
   min-width: 0;
   border-radius: 12px;
   overflow: hidden;
-  background: #272727;
+  background: var(--raised);
 
   img {
     width: 100%;
@@ -975,7 +966,7 @@ main {
 .image-skeleton {
   position: absolute;
   inset: 0;
-  background: #313131;
+  background: var(--active);
   border-radius: inherit;
   animation: skeleton-fade 1.5s var(--ease) infinite alternate;
 }
@@ -1067,7 +1058,7 @@ main {
   align-items: center;
   gap: var(--spacing-200);
   padding-top: var(--spacing-300);
-  color: #c7d0c0;
+  color: var(--supportive);
 
   span {
     display: flex;
@@ -1805,7 +1796,6 @@ main {
 // Scroll scenes: each layer owns its transform, leaving interactive controls intact.
 .nav-island {
   position: relative;
-  overflow: clip;
 }
 
 .scroll-progress {
@@ -1873,7 +1863,7 @@ main {
   left: 12%;
   right: 12%;
   height: 560px;
-  border: 1px solid #b1c5a20b;
+  border: 1px solid var(--orbit-line);
   border-radius: 9999px;
 }
 
@@ -1936,7 +1926,7 @@ main {
   left: calc(50% - 1px);
   top: 0;
   bottom: 0;
-  background: #b1c5a22b;
+  background: var(--rod-muted);
 }
 
 .tagline-rod-fill {
@@ -2058,5 +2048,14 @@ main {
 @media (max-width: 360px) {
   .final-cta .cta-copy .store-downloads {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-island {
+    gap: var(--spacing-50);
+  }
+  .nav-download svg {
+    display: none;
   }
 }

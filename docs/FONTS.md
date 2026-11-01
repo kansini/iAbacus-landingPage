@@ -8,7 +8,7 @@ App 在 `iAbacus-ios/iAbacus/AbacusStyle.swift` 中使用 `NotoSerifSC-Regular`�
 
 网站现在直接使用这份原文件生成的 WOFF2：
 
-- `public/fonts/noto-serif-sc-web.woff2`：当前页面用字、ASCII 和常用标点的子集，155,968 字节，包含 1,068 个码点。
+- `public/fonts/noto-serif-sc-web.woff2`：当前页面用字、ASCII 和常用标点的子集，156,572 字节，包含 1,071 个码点。
 - `public/fonts/noto-serif-sc-complete.woff2`：同款完整字库的后备，5,709,388 字节。只有页面遇到子集没有覆盖的字形时才需要下载。
 - `public/fonts/app-fonts.css`：两个字体面的统一声明。
 - `public/fonts/noto-serif-sc-manifest.json`：原文件 SHA-256、实际字重、覆盖码点与文件大小。

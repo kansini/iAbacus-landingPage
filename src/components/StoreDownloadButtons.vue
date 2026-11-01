@@ -59,21 +59,23 @@ const stores = [
   min-width: 0;
   min-height: 80px;
   padding: 8px 16px;
-  border: 2px solid #000;
+  border: 2px solid var(--accent);
   border-radius: 16px;
-  background: #fff;
-  color: #080808;
+  background: var(--accent);
+  color: var(--accent-ink);
   text-align: left;
   text-decoration: none;
   transition:
     transform 0.5s var(--ease),
-    background-color 0.3s var(--ease);
+    background-color 0.3s var(--ease),
+    border-color 0.3s var(--ease);
   &:disabled {
     opacity: 1;
     cursor: default;
   }
   &:not(:disabled):hover {
-    background: #edf1e9;
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
     transform: translateY(-2px);
   }
   &:not(:disabled):active {

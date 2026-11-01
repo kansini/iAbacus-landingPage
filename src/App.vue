@@ -13,6 +13,7 @@ import AppIcon from "./components/AppIcon.vue";
 import ProductImage from "./components/ProductImage.vue";
 import { materials } from "./data";
 import StoreDownloadButtons from "./components/StoreDownloadButtons.vue";
+import ThemeToggle from "./components/ThemeToggle.vue";
 import { faqs, modes } from "./content";
 
 const pageRoot = ref<HTMLElement>();
@@ -53,7 +54,7 @@ function keydown(event: KeyboardEvent) {
   if (event.key !== "Tab") return;
   const items = [
     ...document.querySelectorAll<HTMLElement>(
-      ".mobile-panel a, .mobile-panel button, .menu-toggle",
+      ".mobile-panel a, .mobile-panel button, .menu-toggle, .theme-toggle",
     ),
   ].filter((el) => el.offsetParent !== null);
   const first = items[0];
@@ -158,6 +159,7 @@ watch(faqQuery, async () => {
       >
         下载珠记 <AppIcon name="arrow" :size="16" />
       </a>
+      <ThemeToggle />
       <button
         ref="menuButton"
         class="menu-toggle"

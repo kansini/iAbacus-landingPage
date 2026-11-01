@@ -323,7 +323,7 @@ onBeforeUnmount(() => {
       color 0.3s var(--ease),
       transform 0.5s var(--ease);
     &:hover {
-      background: #313131;
+      background: var(--active);
       color: var(--text);
     }
     &[aria-pressed="true"] {

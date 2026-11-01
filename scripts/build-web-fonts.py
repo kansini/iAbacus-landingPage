@@ -16,7 +16,7 @@ args = parser.parse_args()
 source = args.source.resolve()
 out = project / 'public/fonts'
 out.mkdir(parents=True, exist_ok=True)
-text = ''.join(p.read_text() for folder in ['src', 'public'] for p in (project / folder).rglob('*') if p.suffix in {'.vue', '.ts', '.scss', '.css', '.html'})
+text = ''.join(p.read_text() for folder in ['src', 'public'] for p in (project / folder).rglob('*') if p.suffix in {'.vue', '.ts', '.scss', '.css', '.html', '.js'})
 font = TTFont(source)
 available = set(font.getBestCmap())
 requested = {ord(c) for c in text} | set(range(0x20, 0x7F)) | set(range(0x2000, 0x2070)) | set(range(0x3000, 0x3040)) | set(range(0xFF00, 0xFFF0))
@@ -30,9 +30,15 @@ subsetter.populate(unicodes=used)
 subsetter.subset(font)
 font.flavor = 'woff2'
 font.save(out / 'noto-serif-sc-web.woff2')
-complete = TTFont(source, recalcTimestamp=False)
-complete.flavor = 'woff2'
-complete.save(out / 'noto-serif-sc-complete.woff2')
+source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+try:
+    previous = json.loads((out / 'noto-serif-sc-manifest.json').read_text())
+except (FileNotFoundError, ValueError):
+    previous = {}
+if previous.get('sha256') != source_hash or not (out / 'noto-serif-sc-complete.woff2').exists():
+    complete = TTFont(source, recalcTimestamp=False)
+    complete.flavor = 'woff2'
+    complete.save(out / 'noto-serif-sc-complete.woff2')
 shutil.copyfile(source.with_name('NotoSerifSC-License.txt'), out / 'NotoSerifSC-OFL.txt')
 (out / 'app-fonts.css').write_text('''/* Same original regular face as the native App; no variable weight axis. */
 @font-face {
@@ -51,7 +57,7 @@ shutil.copyfile(source.with_name('NotoSerifSC-License.txt'), out / 'NotoSerifSC-
   font-display: swap;
 }
 ''')
-manifest = {'source': 'iAbacus-ios/iAbacus/Fonts/NotoSerifSC.ttf', 'sha256': hashlib.sha256(source.read_bytes()).hexdigest(), 'postscript_name': 'NotoSerifSC-Regular', 'weight': 400, 'variable': False, 'subset_codepoints': used, 'source_glyph_coverage': len(available), 'subset_bytes': (out/'noto-serif-sc-web.woff2').stat().st_size, 'complete_bytes': (out/'noto-serif-sc-complete.woff2').stat().st_size}
+manifest = {'source': 'iAbacus-ios/iAbacus/Fonts/NotoSerifSC.ttf', 'sha256': source_hash, 'postscript_name': 'NotoSerifSC-Regular', 'weight': 400, 'variable': False, 'subset_codepoints': used, 'source_glyph_coverage': len(available), 'subset_bytes': (out/'noto-serif-sc-web.woff2').stat().st_size, 'complete_bytes': (out/'noto-serif-sc-complete.woff2').stat().st_size}
 (out / 'noto-serif-sc-manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
 print(json.dumps({k:v for k,v in manifest.items() if k != 'subset_codepoints'}, ensure_ascii=False))
 print('subset glyph coverage:', len(used))
