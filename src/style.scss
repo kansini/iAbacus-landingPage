@@ -24,7 +24,7 @@ iframe {
   --secondary: #a0a69b;
   --accent: #b1c5a2;
   --accent-ink: #20271d;
-  --font: "Geist Variable", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font: "Noto Serif SC", "Noto Serif SC Complete", "Songti SC", serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --spacing-0: 0;
   --spacing-25: 2px;
@@ -46,7 +46,7 @@ iframe {
   font-family: var(--font);
   color: var(--text);
   background: var(--bg);
-  font-synthesis: none;
+  font-synthesis: weight;
   -webkit-font-smoothing: antialiased;
   color-scheme: dark;
 }
@@ -1428,7 +1428,7 @@ main {
   }
   .hero-description {
     @include text-style("body-6");
-    max-width: 34ch;
+    max-width: 100%;
   }
   .hero-action {
     margin-top: var(--spacing-300);

@@ -7,6 +7,7 @@
 }
 :root {
   color-scheme: dark;
+  font-synthesis: weight;
   --paper: #181818;
   --card: #1f1f1f;
   --ink: #f1f2ed;
@@ -15,7 +16,7 @@
   --jade: #b1c5a2;
   --line: #373b36;
   --gold: #b1c5a2;
-  --sans: "Geist Variable", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --sans: "Noto Serif SC", "Noto Serif SC Complete", "Songti SC", serif;
   --serif: var(--sans);
 }
 body {

@@ -1,0 +1,16 @@
+/* Same original regular face as the native App; no variable weight axis. */
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url("./noto-serif-sc-web.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+/* Same font, full coverage: fetched only if a glyph is absent above. */
+@font-face {
+  font-family: "Noto Serif SC Complete";
+  src: url("./noto-serif-sc-complete.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

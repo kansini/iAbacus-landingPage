@@ -23,7 +23,7 @@ yarn preview
 - 图片具有占位骨架、加载失败提示和重试入口。
 - 隐私政策、技术支持、使用说明与品牌 404 页面。
 
-字号、行高和字重集中在 `src/style.scss` 的命名样式表，间距使用指定技能的令牌。Latin 使用本地 Geist 字体，中文字符使用同一字体栈中的系统中文回退。字体授权见 `public/fonts/OFL.txt`。
+字号、行高和字重集中在 `src/style.scss` 的命名样式表，间距使用指定技能的令牌。网站主字体已统一为原生 App 同款 Noto Serif SC（思源宋体），直接由 App 的 NotoSerifSC-Regular 原文件生成。常用页面文字使用较小的 WOFF2 子集，新增字形按需加载同款完整字体；不依赖系统黑体。原字体只有 Regular，强调字重由浏览器合成。下载徽章的品牌英文使用 Geist。授权分别见 `public/fonts/NotoSerifSC-OFL.txt` 与 `public/fonts/OFL.txt`。字体构建及验证见 `docs/FONTS.md`。
 
 ## 资源与部署
 

@@ -91,6 +91,7 @@ const stores = [
   object-fit: contain;
 }
 .store-badge-copy {
+  font-family: "Geist Variable", sans-serif;
   display: flex;
   flex-direction: column;
   min-width: 0;
