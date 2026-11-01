@@ -16,6 +16,7 @@
   let current = explicit ? saved : system.matches ? "dark" : "light";
   let busy = false;
   let transition;
+  let reveal;
 
   function syncButtons() {
     document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
@@ -52,20 +53,56 @@
       new CustomEvent("iabacus:theme-change", { detail: { theme } }),
     );
   }
-  async function toggle() {
+  async function toggle(source) {
     if (busy) return;
     const next = current === "dark" ? "light" : "dark";
     busy = true;
     syncButtons();
+    const button =
+      source instanceof Element
+        ? source
+        : document.querySelector("[data-theme-toggle]");
+    const rect = button?.getBoundingClientRect();
+    const x = rect ? rect.left + rect.width / 2 : innerWidth / 2;
+    const y = rect ? rect.top + rect.height / 2 : 40;
+    // A 1.8:1 ellipse echoes the jade abacus bead. Cover the farthest corner
+    // without moving the live document or disturbing ScrollTrigger's pins.
+    const reachX = Math.max(x, innerWidth - x);
+    const reachY = Math.max(y, innerHeight - y);
+    const ry = Math.hypot(reachX / 1.8, reachY) * 1.02;
     try {
       if (reduced.matches || document.visibilityState === "hidden") {
         apply(next, true);
       } else if (typeof document.startViewTransition === "function") {
+        root.dataset.themeTransition = "bead";
         transition = document.startViewTransition(async () => {
           apply(next, true);
           await Promise.resolve();
         });
-        void transition.ready.catch(() => {});
+        void transition.finished.catch(() => {});
+        await transition.ready;
+        reveal = root.animate(
+          {
+            clipPath: [
+              `ellipse(0px 0px at ${x}px ${y}px)`,
+              `ellipse(${ry * 1.8}px ${ry}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 600,
+            easing: "cubic-bezier(.22,1,.36,1)",
+            fill: "both",
+            pseudoElement: "::view-transition-new(root)",
+          },
+        );
+        // Older implementations may ignore pseudoElement. Never leave a
+        // viewport-sized mask on the real, scrollable document in that case.
+        if (reveal.effect?.pseudoElement !== "::view-transition-new(root)") {
+          reveal.cancel();
+          transition.skipTransition();
+        } else {
+          await reveal.finished;
+        }
         await transition.finished;
       } else {
         apply(next, true);
@@ -78,8 +115,12 @@
       }
     } catch {
       // Snapshot/animation support must never prevent the preference changing.
+      transition?.skipTransition();
       if (current !== next) apply(next, true);
     } finally {
+      reveal?.cancel();
+      reveal = undefined;
+      delete root.dataset.themeTransition;
       transition = undefined;
       busy = false;
       syncButtons();
@@ -97,7 +138,7 @@
       event.target instanceof Element &&
       event.target.closest("[data-theme-toggle]")
     )
-      void toggle();
+      void toggle(event.target.closest("[data-theme-toggle]"));
   });
   document.addEventListener("DOMContentLoaded", () => apply(current), {
     once: true,

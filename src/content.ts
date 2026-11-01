@@ -1,3 +1,10 @@
+export const otherApps = [
+  { name: "探画", url: "https://art-detective.netlify.app/" },
+  { name: "银盐", url: "https://silver-salt.netlify.app/" },
+  { name: "怪运会", url: "https://oddletics.cn/" },
+  { name: "雾镜", url: "https://foggy-mirror.netlify.app/" },
+];
+
 export const faqs = [
   {
     q: "不会珠算，也能使用吗？",

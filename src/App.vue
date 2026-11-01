@@ -14,7 +14,7 @@ import ProductImage from "./components/ProductImage.vue";
 import { materials } from "./data";
 import StoreDownloadButtons from "./components/StoreDownloadButtons.vue";
 import ThemeToggle from "./components/ThemeToggle.vue";
-import { faqs, modes } from "./content";
+import { faqs, modes, otherApps } from "./content";
 
 const pageRoot = ref<HTMLElement>();
 const landingMotion = useLandingMotion(pageRoot);
@@ -648,6 +648,22 @@ watch(faqQuery, async () => {
         /></a>
       </nav>
     </div>
+    <nav class="footer-apps" aria-labelledby="other-apps-heading">
+      <h2 id="other-apps-heading" class="caption-4">更多 App</h2>
+      <ul>
+        <li v-for="app in otherApps" :key="app.url">
+          <a
+            class="caption-3"
+            :href="app.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            :aria-label="`${app.name}（新窗口打开）`"
+          >
+            {{ app.name }} <AppIcon name="external" :size="16" />
+          </a>
+        </li>
+      </ul>
+    </nav>
     <div class="footer-bottom">
       <p class="caption-5">© {{ new Date().getFullYear() }} 珠记 iAbacus</p>
       <p class="caption-5">用心打磨，为日常而作。</p>

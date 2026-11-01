@@ -3,6 +3,10 @@ import { computed, onBeforeUnmount, ref } from "vue";
 import AppIcon from "./AppIcon.vue";
 import type { Material } from "../data";
 const props = defineProps<{ material: Material }>();
+// Sprite images extend beyond the button box. Keep the entire sprite outside
+// the beam mask (37%–43.4% of the board), including both active bead groups.
+const upperTravel = '185%';
+const lowerTravel = '-215%';
 const labels = ["亿", "仟万", "佰万", "拾万", "万", "仟", "佰", "拾", "个"];
 const rods = ref(
   Array.from({ length: 9 }, (_, i) => ({
@@ -113,7 +117,7 @@ onBeforeUnmount(() => {
             class="bead"
             :style="{
               '--bead-top': `${1.4 + (2 - bead) * 7.1}%`,
-              '--bead-offset': bead - 1 < rod.upper ? '215%' : '0%',
+              '--bead-offset': bead - 1 < rod.upper ? upperTravel : '0%',
             }"
             tabindex="-1"
             aria-hidden="true"
@@ -133,7 +137,7 @@ onBeforeUnmount(() => {
             class="bead"
             :style="{
               '--bead-top': `${60.6 + (bead - 1) * 7.1}%`,
-              '--bead-offset': bead - 1 < rod.lower ? '-285%' : '0%',
+              '--bead-offset': bead - 1 < rod.lower ? lowerTravel : '0%',
             }"
             tabindex="-1"
             aria-hidden="true"
