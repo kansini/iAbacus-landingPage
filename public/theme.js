@@ -3,7 +3,6 @@
   if (window.iAbacusTheme) return;
   const key = "iabacus-theme";
   const root = document.documentElement;
-  const system = window.matchMedia("(prefers-color-scheme: dark)");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const valid = (value) => value === "light" || value === "dark";
   let saved;
@@ -12,8 +11,7 @@
   } catch {
     /* Private/restricted storage is optional. */
   }
-  let explicit = valid(saved);
-  let current = explicit ? saved : system.matches ? "dark" : "light";
+  let current = valid(saved) ? saved : "dark";
   let busy = false;
   let transition;
   let reveal;
@@ -41,7 +39,6 @@
       .querySelectorAll('meta[name="color-scheme"]')
       .forEach((meta) => meta.setAttribute("content", theme));
     if (persist) {
-      explicit = true;
       try {
         localStorage.setItem(key, theme);
       } catch {
@@ -143,13 +140,9 @@
   document.addEventListener("DOMContentLoaded", () => apply(current), {
     once: true,
   });
-  system.addEventListener("change", () => {
-    if (!explicit) apply(system.matches ? "dark" : "light");
-  });
   window.addEventListener("storage", (event) => {
     if (event.key !== key && event.key !== null) return;
-    explicit = valid(event.newValue);
-    apply(explicit ? event.newValue : system.matches ? "dark" : "light");
+    apply(valid(event.newValue) ? event.newValue : "dark");
   });
   window.addEventListener("pagehide", () => transition?.skipTransition());
 })();

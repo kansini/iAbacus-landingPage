@@ -200,7 +200,7 @@
 @media (prefers-reduced-motion: reduce) {
   .theme-toggle,
   .theme-glyph svg {
-    transition: none;
+    transition: none !important;
   }
   ::view-transition-group(root),
   ::view-transition-old(root),
