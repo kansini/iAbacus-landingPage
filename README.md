@@ -11,14 +11,14 @@ yarn preview
 
 ## 上架后启用下载
 
-将 `.env.example` 复制为 `.env.local`，填写正式的 `VITE_APP_STORE_URL=https://apps.apple.com/...`，重新构建。所有下载按钮共用该配置。未配置时保留「下载珠记」按钮，点击显示正在准备上架的说明。
+将 `.env.example` 复制为 `.env.local`，填写正式的 `VITE_APP_STORE_URL=https://apps.apple.com/...`，重新构建。AppGallery 链接使用 `VITE_APP_GALLERY_URL`。首屏和页尾共用 App Store、AppGallery 两种商店徽章；地址留空时按钮保持展示但禁用跳转，不显示上架状态文案，也不弹出提示。
 
 ## 页面与交互
 
 - 深色平面背景、青玉色点缀、悬浮导航和带焦点管理的全屏手机菜单。
 - 可交互九档算盘，支持点击拨珠、方向键调整、归零与默认关闭的音效。
 - 八种材质切换，以及记账、演算、每日一数标签页，标签支持方向键、Home 和 End。
-- 独立的大字标语区，通过 IntersectionObserver 逐词触发显现；页面入场由 GSAP 执行。动画只改变 transform 与 opacity，并支持系统减少动态效果。
+- 独立的大字标语区，由 ScrollTrigger 驱动桌面停驻与逐词显现；首屏算珠、算盘、材质、账簿和下载图标具备分层视差。普通入场由 IntersectionObserver 触发 GSAP。动画只改变 transform 与 opacity，并支持系统减少动态效果。
 - 真实 App 账簿截图与三步记账说明，八项可搜索 FAQ，含空结果反馈。
 - 图片具有占位骨架、加载失败提示和重试入口。
 - 隐私政策、技术支持、使用说明与品牌 404 页面。
@@ -33,4 +33,4 @@ yarn preview
 
 当前不使用 Cookie、表单收集或第三方统计服务，没有价格、评价、下载量或退款保证等未经确认的宣传。
 
-设计依据、内容方案与检查范围见 `docs/REDESIGN.md`。
+设计依据、内容方案与检查范围见 `docs/REDESIGN.md`；滚动场景、响应式降级与动效验证见 `docs/MOTION.md`。

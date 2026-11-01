@@ -7,13 +7,16 @@ import {
   ref,
   watch,
 } from "vue";
-import gsap from "gsap";
+import { useLandingMotion } from "./composables/useLandingMotion";
 import AbacusDemo from "./components/AbacusDemo.vue";
 import AppIcon from "./components/AppIcon.vue";
 import ProductImage from "./components/ProductImage.vue";
-import { appStoreUrl, materials } from "./data";
+import { materials } from "./data";
+import StoreDownloadButtons from "./components/StoreDownloadButtons.vue";
 import { faqs, modes } from "./content";
 
+const pageRoot = ref<HTMLElement>();
+const landingMotion = useLandingMotion(pageRoot);
 const selected = ref(0);
 const material = computed(() => materials[selected.value]!);
 const activeMode = ref(0);
@@ -21,7 +24,6 @@ const currentMode = computed(() => modes[activeMode.value]!);
 const activeSection = ref("top");
 const mobileMenu = ref(false);
 const menuButton = ref<HTMLButtonElement>();
-const downloadDialog = ref<HTMLDialogElement>();
 const faqQuery = ref("");
 const filteredFaqs = computed(() =>
   faqs.filter((item) => `${item.q}${item.a}`.includes(faqQuery.value.trim())),
@@ -38,10 +40,6 @@ const tagline = [
   ["让", "每一个", "数字，"],
   ["回到", "自己的", "节奏。"],
 ];
-function download() {
-  if (appStoreUrl) window.location.assign(appStoreUrl);
-  else downloadDialog.value?.showModal();
-}
 function closeMenu(restoreFocus = false) {
   mobileMenu.value = false;
   if (restoreFocus) void nextTick(() => menuButton.value?.focus());
@@ -87,68 +85,15 @@ watch(mobileMenu, (open) => {
     document.body.style.overflow = "hidden";
   } else document.body.style.overflow = previousOverflow;
 });
-let revealObserver: IntersectionObserver | undefined;
-let wordObserver: IntersectionObserver | undefined;
 let sectionObserver: IntersectionObserver | undefined;
-let motion: MediaQueryList | undefined;
-const ease = (p: number) => 1 - Math.pow(1 - p, 4);
-function updateMotion() {
-  const reduce = motion?.matches;
-  document.documentElement.classList.toggle("motion-reduced", !!reduce);
-  if (reduce) {
-    gsap.killTweensOf("[data-reveal], .tagline-word");
-    gsap.set("[data-reveal]", { clearProps: "all" });
-    document.querySelectorAll<HTMLElement>(".tagline-word").forEach((word) => {
-      word.classList.add("is-active");
-      word.style.opacity = "1";
-    });
-  }
-}
 onMounted(() => {
-  motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   document.addEventListener("keydown", keydown);
-  motion.addEventListener("change", updateMotion);
   if (!isHome) {
-    document.title = '页面未找到 · 珠记';
-    document.querySelector('meta[name="robots"]')?.setAttribute('content', 'noindex');
+    document.title = "页面未找到 · 珠记";
+    document
+      .querySelector('meta[name="robots"]')
+      ?.setAttribute("content", "noindex");
     return;
-  }
-  if (!motion.matches) {
-    revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          gsap.fromTo(
-            entry.target,
-            { y: 32, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.8, ease, clearProps: "all" },
-          );
-          revealObserver?.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.08 },
-    );
-    document
-      .querySelectorAll("[data-reveal]")
-      .forEach((el) => revealObserver?.observe(el));
-    wordObserver = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting);
-        visible.forEach((entry, index) => {
-          gsap.to(entry.target, {
-            opacity: 1,
-            duration: 0.5,
-            delay: index * 0.06,
-            ease,
-          });
-          wordObserver?.unobserve(entry.target);
-        });
-      },
-      { rootMargin: "0px 0px -25% 0px", threshold: 1 },
-    );
-    document
-      .querySelectorAll(".tagline-word")
-      .forEach((el) => wordObserver?.observe(el));
   }
   sectionObserver = new IntersectionObserver(
     (entries) => {
@@ -160,16 +105,24 @@ onMounted(() => {
   document
     .querySelectorAll("section[id]")
     .forEach((el) => sectionObserver?.observe(el));
-  updateMotion();
 });
 onBeforeUnmount(() => {
-  revealObserver?.disconnect();
-  wordObserver?.disconnect();
   sectionObserver?.disconnect();
-  motion?.removeEventListener("change", updateMotion);
-  gsap.killTweensOf("[data-reveal], .tagline-word");
   document.removeEventListener("keydown", keydown);
   if (mobileMenu.value) document.body.style.overflow = previousOverflow;
+});
+watch(selected, async () => {
+  await nextTick();
+  landingMotion.animateChange("material");
+});
+watch(activeMode, async () => {
+  await nextTick();
+  landingMotion.animateChange("mode");
+  landingMotion.refresh();
+});
+watch(faqQuery, async () => {
+  await nextTick();
+  landingMotion.refresh();
 });
 </script>
 
@@ -177,9 +130,11 @@ onBeforeUnmount(() => {
   <a class="skip-link button-sm" href="#main">跳到正文</a>
   <header class="site-header">
     <div class="nav-island">
+      <span class="scroll-progress" aria-hidden="true" />
       <a
         class="brand"
         :href="isHome ? '#top' : '/'"
+        :aria-current="isHome && activeSection === 'top' ? 'page' : undefined"
         aria-label="珠记首页"
         @click="closeMenu()"
         ><img src="/images/app-icon.webp" alt="" width="32" height="32" /><span
@@ -197,9 +152,12 @@ onBeforeUnmount(() => {
           >{{ link.label }}</a
         >
       </nav>
-      <button class="button button-sm nav-download" @click="download">
+      <a
+        class="button button-sm nav-download"
+        :href="isHome ? '#download' : '/#download'"
+      >
         下载珠记 <AppIcon name="arrow" :size="16" />
-      </button>
+      </a>
       <button
         ref="menuButton"
         class="menu-toggle"
@@ -234,21 +192,42 @@ onBeforeUnmount(() => {
       /></a>
       <div class="mobile-panel-bottom">
         <p class="body-6">指尖有数，一拨一记。</p>
-        <button
+        <a
           class="button button-md"
-          @click="
-            closeMenu();
-            download();
-          "
-        >
-          下载珠记 <AppIcon name="arrow" />
-        </button>
+          :href="isHome ? '#download' : '/#download'"
+          @click="closeMenu()"
+          >下载珠记 <AppIcon name="arrow"
+        /></a>
       </div></nav
   ></Transition>
 
-  <main v-if="isHome" id="main" :inert="mobileMenu">
+  <main v-if="isHome" ref="pageRoot" id="main" :inert="mobileMenu">
     <section id="top" class="hero container" aria-labelledby="hero-title">
-      <div class="hero-intro" data-reveal>
+      <div class="hero-atmosphere" aria-hidden="true">
+        <img
+          class="hero-orbit hero-orbit-jade"
+          src="/images/jade-bead.webp"
+          alt=""
+          width="160"
+          height="80"
+        />
+        <img
+          class="hero-orbit hero-orbit-glass"
+          src="/images/glass-bead.webp"
+          alt=""
+          width="96"
+          height="48"
+        />
+        <img
+          class="hero-orbit hero-orbit-brass"
+          src="/images/brass-bead.webp"
+          alt=""
+          width="80"
+          height="40"
+        />
+        <span class="hero-orbit-ring" />
+      </div>
+      <div class="hero-intro">
         <p class="eyebrow caption-4">
           <span class="status-dot" /> 一方算盘，一本生活
         </p>
@@ -260,20 +239,13 @@ onBeforeUnmount(() => {
             class="desktop-break"
           />拨动算珠，记下收支，也找回自己的节奏。
         </p>
-        <div class="hero-action">
-          <button class="button button-md" @click="download">
-            <AppIcon name="apple" :size="24" />下载珠记<AppIcon name="arrow" />
-          </button>
-          <p class="caption-5">
-            {{ appStoreUrl ? "适用于 iPhone · 横屏体验" : "iOS 版即将上架" }}
-          </p>
-        </div>
+        <div class="hero-action"><StoreDownloadButtons /></div>
         <p class="hero-proof caption-5">
           <AppIcon name="fingerprint" :size="16" />无需账号 · 本机保存 ·
           核心功能离线可用
         </p>
       </div>
-      <div class="hero-product" data-reveal>
+      <div class="hero-product">
         <div class="product-topline">
           <span class="caption-4"
             ><span class="status-dot" /> 传统手感，装进当代日常</span
@@ -291,15 +263,24 @@ onBeforeUnmount(() => {
       </div>
       <div class="proof-rail">
         <div>
-          <span class="heading-4">08<span class="caption-5">种</span></span>
+          <span class="heading-4 stat-mask"
+            ><span class="stat-value">08</span
+            ><span class="caption-5">种</span></span
+          >
           <p class="caption-5">材质，各有回响</p>
         </div>
         <div>
-          <span class="heading-4">09<span class="caption-5">档</span></span>
+          <span class="heading-4 stat-mask"
+            ><span class="stat-value">09</span
+            ><span class="caption-5">档</span></span
+          >
           <p class="caption-5">让数字落在指尖</p>
         </div>
         <div>
-          <span class="heading-4">02<span class="caption-5">种</span></span>
+          <span class="heading-4 stat-mask"
+            ><span class="stat-value">02</span
+            ><span class="caption-5">种</span></span
+          >
           <p class="caption-5">规制，自在切换</p>
         </div>
         <p class="body-6">算得见，<br />也记得住。</p>
@@ -326,17 +307,19 @@ onBeforeUnmount(() => {
       </div>
       <div class="material-layout" data-reveal>
         <div class="material-story">
-          <span class="caption-5 material-index">0{{ selected + 1 }} / 08</span
-          ><img
-            class="material-sculpture"
-            :key="material.id"
-            :src="`/images/${material.id}-bead.webp`"
-            :alt="`${material.name}算珠细节`"
-            width="240"
-            height="120"
-            loading="lazy"
-          />
-          <div>
+          <span class="caption-5 material-index">0{{ selected + 1 }} / 08</span>
+          <div class="material-sculpture-depth">
+            <img
+              class="material-sculpture"
+              :key="material.id"
+              :src="`/images/${material.id}-bead.webp`"
+              :alt="`${material.name}算珠细节`"
+              width="240"
+              height="120"
+              loading="lazy"
+            />
+          </div>
+          <div class="material-copy">
             <h3 class="heading-3">{{ material.name }}</h3>
             <p class="body-6">{{ material.note }}</p>
           </div>
@@ -346,7 +329,7 @@ onBeforeUnmount(() => {
             <span class="caption-4">一拨，就有回应。</span
             ><AppIcon name="settings" :size="20" />
           </div>
-          <AbacusDemo :material="material" />
+          <div class="demo-depth"><AbacusDemo :material="material" /></div>
           <p class="caption-5 demo-help">
             点击算珠试一试，也可以用方向键调整数位。
           </p>
@@ -452,25 +435,41 @@ onBeforeUnmount(() => {
       class="tagline-section container section-space"
       aria-labelledby="tagline-title"
     >
-      <p class="section-label caption-4">认真生活，自有回响</p>
-      <h2
-        id="tagline-title"
-        class="heading-2 tagline"
-        aria-label="让每一笔收支，都有清楚的来处。让每一个数字，回到自己的节奏。"
-      >
-        <span
-          v-for="(line, lineIndex) in tagline"
-          :key="lineIndex"
-          class="tagline-line"
-          aria-hidden="true"
-          ><span v-for="word in line" :key="word" class="tagline-word">{{
-            word
-          }}</span></span
+      <div class="tagline-pin">
+        <aside class="tagline-instrument" aria-hidden="true">
+          <p class="section-label caption-4">认真生活，自有回响</p>
+          <div class="tagline-rods">
+            <span class="tagline-rod" /><span class="tagline-rod-fill" /><img
+              v-for="bead in 4"
+              :key="bead"
+              class="tagline-bead"
+              src="/images/jade-bead.webp"
+              alt=""
+              width="80"
+              height="40"
+            />
+          </div>
+          <span class="caption-5">一拨一记，自有节奏</span>
+        </aside>
+        <h2
+          id="tagline-title"
+          class="heading-2 tagline"
+          aria-label="让每一笔收支，都有清楚的来处。让每一个数字，回到自己的节奏。"
         >
-      </h2>
-      <span class="tagline-footnote caption-5"
-        >少一点匆忙，多一点心中有数。</span
-      >
+          <span
+            v-for="(line, lineIndex) in tagline"
+            :key="lineIndex"
+            class="tagline-line"
+            aria-hidden="true"
+            ><span v-for="word in line" :key="word" class="tagline-word">{{
+              word
+            }}</span></span
+          >
+        </h2>
+        <span class="tagline-footnote caption-5"
+          >少一点匆忙，多一点心中有数。</span
+        >
+      </div>
     </section>
 
     <section
@@ -593,6 +592,7 @@ onBeforeUnmount(() => {
     </section>
 
     <section
+      id="download"
       class="final-cta container"
       aria-labelledby="final-title"
       data-reveal
@@ -603,16 +603,7 @@ onBeforeUnmount(() => {
           把一方算盘，<br />留在生活里。
         </h2>
         <p class="body-3">给数字一点温度，给日常一点从容。</p>
-        <button class="button button-md" @click="download">
-          <AppIcon name="apple" :size="24" />下载珠记<AppIcon name="arrow" />
-        </button>
-        <p class="caption-5">
-          {{
-            appStoreUrl
-              ? "适用于 iPhone · 横屏体验"
-              : "为 iPhone 而设计 · 即将上架"
-          }}
-        </p>
+        <StoreDownloadButtons class="cta-downloads" />
       </div>
       <div class="cta-art" aria-hidden="true">
         <img
@@ -664,29 +655,4 @@ onBeforeUnmount(() => {
       /></a>
     </div>
   </footer>
-
-  <dialog
-    ref="downloadDialog"
-    class="download-dialog"
-    aria-labelledby="download-title"
-    @click="$event.target === downloadDialog && downloadDialog?.close()"
-  >
-    <button
-      class="dialog-close"
-      aria-label="关闭下载提示"
-      @click="downloadDialog?.close()"
-    >
-      <AppIcon name="close" :size="24" /></button
-    ><img src="/images/app-icon.webp" alt="" width="64" height="64" />
-    <p class="eyebrow caption-4">珠记 iOS 版</p>
-    <h2 id="download-title" class="heading-4">正在准备，指尖相见。</h2>
-    <p class="body-3">
-      正式上架后，这里将开放 App Store 下载。<br />感谢你对珠记的关注。
-    </p>
-    <button class="button button-md" @click="downloadDialog?.close()">
-      知道了 <AppIcon name="check" /></button
-    ><a class="text-button caption-4" href="/support.html"
-      >查看使用说明 <AppIcon name="external" :size="16"
-    /></a>
-  </dialog>
 </template>

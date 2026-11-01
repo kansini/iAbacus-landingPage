@@ -57,8 +57,14 @@ export const materials = [
   },
 ] as const;
 export type Material = (typeof materials)[number];
-// 上架后在 .env.local 中填写正式链接，即可启用所有下载入口。
-const configuredUrl = import.meta.env.VITE_APP_STORE_URL?.trim();
-export const appStoreUrl = configuredUrl?.startsWith("https://apps.apple.com/")
-  ? configuredUrl
-  : "";
+// 下载地址未配置时，保留商店徽章并禁用跳转。
+function downloadUrl(value: string | undefined): string {
+  try {
+    const url = new URL(value?.trim() || "");
+    return url.protocol === "https:" ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+export const appStoreUrl = downloadUrl(import.meta.env.VITE_APP_STORE_URL);
+export const appGalleryUrl = downloadUrl(import.meta.env.VITE_APP_GALLERY_URL);
