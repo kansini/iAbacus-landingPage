@@ -1,4 +1,4 @@
-/* Runs before styles paint; shared by the Vue app and static support pages. */
+/* Runs before styles paint; shared by every routed page. */
 (() => {
   if (window.iAbacusTheme) return;
   const key = "iabacus-theme";

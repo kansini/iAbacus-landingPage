@@ -128,19 +128,6 @@
 :root[data-theme-transition] .theme-glyph svg {
   transition: none;
 }
-.legal-theme-floating {
-  position: fixed;
-  right: 24px;
-  top: 24px;
-  background: var(--surface);
-}
-.header-inner > .theme-toggle {
-  margin-left: 0;
-}
-.header-inner nav {
-  margin-left: auto;
-  gap: 16px;
-}
 ::view-transition {
   pointer-events: none;
 }
@@ -186,15 +173,6 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-@media (max-width: 480px) {
-  .header-inner {
-    gap: 8px;
-  }
-  .header-inner nav {
-    font-size: 14px;
-    line-height: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

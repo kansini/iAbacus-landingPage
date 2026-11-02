@@ -3,6 +3,7 @@ import {
   PhArrowRight,
   PhArrowUpRight,
   PhArrowDown,
+  PhArrowUp,
   PhCaretDown,
   PhX,
   PhBookOpen,
@@ -35,6 +36,7 @@ const icons = {
   settings: PhSlidersHorizontal,
   offline: PhWifiSlash,
   scroll: PhArrowDown,
+  up: PhArrowUp,
 };
 </script>
 <template>
